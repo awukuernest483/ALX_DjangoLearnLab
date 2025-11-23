@@ -1,10 +1,10 @@
-from rest_framework import viewsets
+from rest_framework import generics
 from .models import Book
 from .serializers import BookSerializer
 
-class BookViewSet(viewsets.ModelViewSet):
+class BookList(generics.ListAPIView):
     """
-    A viewset that provides standard CRUD actions for the Book model.
+    A simple view to list all books.
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
