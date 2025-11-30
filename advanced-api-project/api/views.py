@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAu
 from django_filters import rest_framework
 from .models import Book, Author
 from .serializers import BookSerializer, AuthorSerializer
+from django_filters import rest_framework
 
 
 # Book List View
