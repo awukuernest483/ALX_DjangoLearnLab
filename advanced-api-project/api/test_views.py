@@ -101,7 +101,7 @@ class BookAPITestCase(APITestCase):
         - Endpoint returns 201 CREATED status
         - Book is actually created in the database
         """
-        self.client.force_authenticate(user=self.user)
+        self.client.login(username='testuser', password='testpass123')
         
         url = reverse('book-create')
         data = {
@@ -143,7 +143,7 @@ class BookAPITestCase(APITestCase):
         - Endpoint returns 200 OK status
         - Book data is actually updated in the database
         """
-        self.client.force_authenticate(user=self.user)
+        self.client.login(username='testuser', password='testpass123')
         
         url = reverse('book-update', kwargs={'pk': self.book1.pk})
         data = {
@@ -187,7 +187,7 @@ class BookAPITestCase(APITestCase):
         - Only specified fields are updated
         - Other fields remain unchanged
         """
-        self.client.force_authenticate(user=self.user)
+        self.client.login(username='testuser', password='testpass123')
         
         url = reverse('book-update', kwargs={'pk': self.book1.pk})
         data = {'title': 'Partially Updated Title'}
@@ -207,7 +207,7 @@ class BookAPITestCase(APITestCase):
         - Endpoint returns 204 NO CONTENT status
         - Book is actually removed from the database
         """
-        self.client.force_authenticate(user=self.user)
+        self.client.login(username='testuser', password='testpass123')
         
         url = reverse('book-delete', kwargs={'pk': self.book1.pk})
         response = self.client.delete(url)
@@ -241,7 +241,7 @@ class BookAPITestCase(APITestCase):
         - Endpoint returns 400 BAD REQUEST status
         - Appropriate error message is returned
         """
-        self.client.force_authenticate(user=self.user)
+        self.client.login(username='testuser', password='testpass123')
         
         url = reverse('book-create')
         future_year = datetime.now().year + 10
@@ -263,7 +263,7 @@ class BookAPITestCase(APITestCase):
         - Books with the current year pass validation
         - Endpoint returns 201 CREATED status
         """
-        self.client.force_authenticate(user=self.user)
+        self.client.login(username='testuser', password='testpass123')
         
         url = reverse('book-create')
         current_year = datetime.now().year

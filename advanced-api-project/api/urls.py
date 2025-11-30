@@ -11,6 +11,9 @@ from .views import (
 
 # URL patterns for the API endpoints
 # These patterns map URL paths to their corresponding view classes
+# The update and delete views use the following patterns:
+# - books/update: books/<int:pk>/update/
+# - books/delete: books/<int:pk>/delete/
 
 urlpatterns = [
     # Book endpoints
