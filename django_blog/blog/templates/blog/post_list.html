@@ -1,0 +1,55 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Blog Posts - Django Blog{% endblock %}
+
+{% block content %}
+<div class="posts-container">
+    <div class="posts-header">
+        <h2>All Blog Posts</h2>
+        {% if user.is_authenticated %}
+            <a href="{% url 'post-create' %}" class="btn btn-primary">Create New Post</a>
+        {% endif %}
+    </div>
+
+    {% if posts %}
+        <div class="posts-list">
+            {% for post in posts %}
+                <article class="post-card">
+                    <h3><a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></h3>
+                    <div class="post-meta">
+                        <span class="author">By {{ post.author.username }}</span>
+                        <span class="date">{{ post.published_date|date:"F d, Y" }}</span>
+                    </div>
+                    <p class="post-excerpt">{{ post.content|truncatewords:50 }}</p>
+                    <a href="{% url 'post-detail' post.pk %}" class="read-more">Read More →</a>
+                </article>
+            {% endfor %}
+        </div>
+
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1" class="page-link">First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="page-link">Previous</a>
+                {% endif %}
+
+                <span class="page-current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="page-link">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">Last</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="no-posts">
+            <p>No blog posts yet.</p>
+            {% if user.is_authenticated %}
+                <a href="{% url 'post-create' %}" class="btn btn-primary">Create the first post!</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

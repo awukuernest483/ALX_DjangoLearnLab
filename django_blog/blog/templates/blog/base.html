@@ -12,6 +12,7 @@
         <div class="nav-container">
             <a href="/" class="nav-brand">Django Blog</a>
             <ul class="nav-menu">
+                <li><a href="{% url 'post-list' %}">Blog Posts</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'profile' %}">Profile</a></li>
                     <li><a href="{% url 'logout' %}">Logout</a></li>
