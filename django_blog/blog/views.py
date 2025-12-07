@@ -190,7 +190,7 @@ def search(request):
     return render(request, 'blog/search_results.html', context)
 
 
-class TaggedPostListView(ListView):
+class PostByTagListView(ListView):
     """Display posts filtered by tag."""
     model = Post
     template_name = 'blog/search_results.html'
