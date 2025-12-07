@@ -5,6 +5,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from django.db.models import Q
+from taggit.models import Tag
 from .forms import CustomUserCreationForm, UserUpdateForm, PostForm, CommentForm
 from .models import Post, Comment
 
@@ -164,3 +166,44 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, 'Comment deleted successfully!')
         return super().delete(request, *args, **kwargs)
+
+
+# Search and Tag Views
+
+def search(request):
+    """Search posts by title, content, or tags."""
+    query = request.GET.get('q', '')
+    results = Post.objects.none()
+    
+    if query:
+        results = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct().order_by('-published_date')
+    
+    context = {
+        'query': query,
+        'results': results,
+        'count': results.count()
+    }
+    return render(request, 'blog/search_results.html', context)
+
+
+class TaggedPostListView(ListView):
+    """Display posts filtered by tag."""
+    model = Post
+    template_name = 'blog/search_results.html'
+    context_object_name = 'results'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')
+        self.tag = get_object_or_404(Tag, slug=tag_slug)
+        return Post.objects.filter(tags__slug=tag_slug).order_by('-published_date')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
+        context['count'] = self.get_queryset().count()
+        return context
