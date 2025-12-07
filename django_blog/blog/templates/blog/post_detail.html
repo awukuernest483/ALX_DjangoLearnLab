@@ -23,6 +23,59 @@
         {% endif %}
     </article>
 
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <h3>Comments ({{ comments.count }})</h3>
+        
+        {% if comments %}
+            <div class="comments-list">
+                {% for comment in comments %}
+                    <div class="comment">
+                        <div class="comment-header">
+                            <strong>{{ comment.author.username }}</strong>
+                            <span class="comment-date">{{ comment.created_at|date:"F d, Y at g:i A" }}</span>
+                            {% if comment.created_at != comment.updated_at %}
+                                <span class="comment-edited">(edited)</span>
+                            {% endif %}
+                        </div>
+                        <div class="comment-content">
+                            {{ comment.content|linebreaks }}
+                        </div>
+                        {% if user == comment.author %}
+                            <div class="comment-actions">
+                                <a href="{% url 'comment-update' comment.pk %}" class="btn-small btn-secondary">Edit</a>
+                                <a href="{% url 'comment-delete' comment.pk %}" class="btn-small btn-danger">Delete</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-comments">No comments yet. Be the first to comment!</p>
+        {% endif %}
+
+        <!-- Add Comment Form -->
+        {% if user.is_authenticated %}
+            <div class="add-comment">
+                <h4>Add a Comment</h4>
+                <form method="post" action="{% url 'comment-create' post.pk %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{ comment_form.content }}
+                        {% if comment_form.content.errors %}
+                            <div class="error">{{ comment_form.content.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post Comment</button>
+                </form>
+            </div>
+        {% else %}
+            <p class="login-prompt">
+                <a href="{% url 'login' %}">Login</a> to leave a comment.
+            </p>
+        {% endif %}
+    </div>
+
     <div class="post-navigation">
         <a href="{% url 'post-list' %}" class="btn btn-outline">← Back to All Posts</a>
     </div>
