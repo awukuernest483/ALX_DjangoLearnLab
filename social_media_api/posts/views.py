@@ -1,8 +1,13 @@
-from rest_framework import viewsets, permissions, filters, generics
+from rest_framework import viewsets, permissions, filters, generics, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Post, Comment
+from django.shortcuts import get_object_or_404
+from django.contrib.contenttypes.models import ContentType
+from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
+from notifications.models import Notification
 
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
@@ -59,7 +64,17 @@ class CommentViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at', 'updated_at']
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        comment = serializer.save(author=self.request.user)
+        # Create notification for post author
+        post = comment.post
+        if post.author != self.request.user:
+            Notification.objects.create(
+                recipient=post.author,
+                actor=self.request.user,
+                verb='commented on your post',
+                target_content_type=ContentType.objects.get_for_model(post),
+                target_object_id=post.id
+            )
 
 
 class FeedView(generics.ListAPIView):
@@ -76,3 +91,48 @@ class FeedView(generics.ListAPIView):
         following_users = self.request.user.following.all()
         # Return posts from followed users, ordered by creation date (newest first)
         return Post.objects.filter(author__in=following_users).order_by('-created_at')
+
+
+class LikePostView(generics.GenericAPIView):
+    """
+    View to like a post.
+    POST /api/posts/<pk>/like/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        post = generics.get_object_or_404(Post, pk=pk)
+        
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        
+        if created:
+            # Create notification for post author
+            if post.author != request.user:
+                Notification.objects.create(
+                    recipient=post.author,
+                    actor=request.user,
+                    verb='liked your post',
+                    target_content_type=ContentType.objects.get_for_model(post),
+                    target_object_id=post.id
+                )
+            return Response({'message': 'Post liked successfully.'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message': 'You have already liked this post.'}, status=status.HTTP_200_OK)
+
+
+class UnlikePostView(generics.GenericAPIView):
+    """
+    View to unlike a post.
+    POST /api/posts/<pk>/unlike/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        post = generics.get_object_or_404(Post, pk=pk)
+        
+        try:
+            like = Like.objects.get(user=request.user, post=post)
+            like.delete()
+            return Response({'message': 'Post unliked successfully.'}, status=status.HTTP_200_OK)
+        except Like.DoesNotExist:
+            return Response({'message': 'You have not liked this post.'}, status=status.HTTP_400_BAD_REQUEST)
