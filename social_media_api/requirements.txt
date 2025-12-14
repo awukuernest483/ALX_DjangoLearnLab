@@ -1,0 +1,26 @@
+# Core Django
+Django>=5.0,<6.0
+djangorestframework>=3.14,<4.0
+django-filter>=23.0
+
+# Authentication
+djangorestframework_simplejwt>=5.0
+
+# Database
+psycopg2-binary>=2.9  # PostgreSQL adapter
+
+# Production server
+gunicorn>=21.0
+whitenoise>=6.0
+
+# Image processing
+pillow>=10.0
+
+# Environment variables
+python-decouple>=3.8
+
+# CORS
+django-cors-headers>=4.0
+
+# Development/Testing
+requests>=2.28
