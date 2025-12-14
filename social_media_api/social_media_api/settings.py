@@ -23,6 +23,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-producti
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+PORT = config('PORT', default=8000, cast=int)
 
 
 # =============================================================================
@@ -196,7 +197,7 @@ CORS_ALLOW_CREDENTIALS = True
 # SECURITY SETTINGS (Production)
 # =============================================================================
 
-DEBUG = False
+
 
 if not DEBUG:
     # HTTPS settings
