@@ -36,4 +36,6 @@ nosetests.xml
 coverage.xml
 *.cover
 *.py,cover
-.
+
+# Docker
+docker-compose.yml
