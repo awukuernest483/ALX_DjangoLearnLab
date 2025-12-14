@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, filters
+from rest_framework import viewsets, permissions, filters, generics
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Post, Comment
@@ -60,3 +60,19 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+
+class FeedView(generics.ListAPIView):
+    """
+    View to get a feed of posts from users that the current user follows.
+    Returns posts ordered by creation date (most recent first).
+    """
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = PostPagination
+
+    def get_queryset(self):
+        # Get the users that the current user is following
+        following_users = self.request.user.following.all()
+        # Return posts from followed users, ordered by creation date (newest first)
+        return Post.objects.filter(author__in=following_users).order_by('-created_at')
