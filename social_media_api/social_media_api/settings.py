@@ -196,6 +196,8 @@ CORS_ALLOW_CREDENTIALS = True
 # SECURITY SETTINGS (Production)
 # =============================================================================
 
+DEBUG = False
+
 if not DEBUG:
     # HTTPS settings
     SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
